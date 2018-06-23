@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>CrudApp</title>
+    <title>School app</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
 </head>
 <body>
@@ -10,6 +10,9 @@
     {% include 'includes/_navbar.html'%}
 
     <div class="container">
+        <br>
+        {% include 'includes/_messages.html' %}
+
         {% block body %}{% endblock %}
     </div>
 

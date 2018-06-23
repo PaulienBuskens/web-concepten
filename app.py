@@ -4,7 +4,18 @@ from flaskext.mysql import MySQL
 from wtforms import Form ,StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
 
+mysql=MySQL()
 app = Flask(__name__)
+
+#config MySQL
+app.config['MYSQL_DATABASE_HOST']= 'localhost'
+app.config['MYSQL_DATABASE_USER']= 'root'
+app.config['MYSQL_DATABASE_PASSWORD']= ''
+app.config['MYSQL_DATABASE_DB']= 'school'
+app.config['MYSQL_DATABASE_CURSORCLASS']= 'DictCursor'
+
+#init MySQL
+mysql.init_app(app)
 
 Classes = Classes()
 
@@ -38,9 +49,28 @@ class RegisterForm(Form):
 def register():
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
+        name = form.name.data
+        email = form.email.data
+        username = form.username.data
+        password = sha256_crypt.encrypt(str(form.password.data))
+
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #Execute query
+        cur.execute("INSERT INTO users(name, email, username, password) VALUES(%s, %s, %s, %s)",(name,email,username,password))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        #close connection
+        cur.close()
+
+        flash('You are now registered and can log in', 'success')
         
-        return render_template('register.html')
+        return redirect(url_for('login'))
     return render_template('register.html', form=form)
 
 if __name__ == '__main__':
+    app.secret_key='secret123'
     app.run(debug=True)
