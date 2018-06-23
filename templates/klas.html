@@ -1,0 +1,12 @@
+{% extends 'layout.html' %}
+
+{% block body%}
+    <br>
+    <h1>{{klas.title}}</h1>
+    <small>Written by  {{klas.author}} on {{klas.create_date}}</small>
+    <hr>
+    <div>
+        {{klas.body | safe}}    <!-- zonder "safe" staan er p tags rond de body-->
+    </div>
+
+{% endblock%}

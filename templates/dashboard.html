@@ -3,4 +3,27 @@
 {% block body %}
     <h1>Dashboard <small>Welcome {{session.username}}</small></h1>
 
+    <a href="/add_klas" class="btn btn-success">Add Class</a>
+    <hr>
+
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Date</th>
+            <th></th>
+            <th></th>
+        </tr>
+        {% for klas in klassen %}
+            <tr>
+                <td>{{klas.id}}</td>
+                <td>{{klas.title}}</td>
+                <td>{{klas.author}}</td>
+                <td>{{klas.create_datae}}</td>
+                <td><a href="edit_klas/{{klas.id}}" class="btn btn-info pull-right">Edit</a></td>
+                <td><a href="#" class="btn btn-danger">Delete</a></td>
+            </tr>
+        {% endfor %}
+    </table>
 {% endblock %}

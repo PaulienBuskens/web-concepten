@@ -1,5 +1,4 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
-from data import Classes
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 from wtforms import Form ,StringField, TextAreaField, PasswordField, validators
@@ -20,7 +19,6 @@ app.config['MYSQL_DATABASE_DB']= 'school'
 #init MySQL
 mysql.init_app(app)
 
-Classes = Classes()
 
 #### Algemene routes ####
 @app.route('/')
@@ -31,13 +29,35 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/classes')
-def classes():
-    return render_template('classes.html', classes = Classes)
+@app.route('/klassen')
+def klassen():
+    #create cursor
+    cur = mysql.get_db().cursor()
 
-@app.route('/class/<string:id>/')
-def clas(id):
-    return render_template('class.html', id=id)
+    #get klassen
+    result = cur.execute("SELECT * FROM klassen")
+
+    klassen = cur.fetchall()
+
+    if result > 0:
+        return render_template('klassen.html', klassen=klassen)
+    else:
+        msg = "No Classen found"
+        return render_template('klassen.html', msg=msg)
+
+    cur.close()
+
+@app.route('/klas/<string:id>/')
+def klas(id):
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get klassen
+    result = cur.execute("SELECT * FROM klassen WHERE id = %s",[id])
+
+    klas = cur.fetchone()
+
+    return render_template('klas.html', klas=klas)
 
 #### register ####
 
@@ -134,6 +154,7 @@ def is_logged_in(f):
 
 #### logout ####
 @app.route('/logout')
+@is_logged_in
 def logout():
     session.clear()
     flash('You are now logged out', 'success')
@@ -144,7 +165,52 @@ def logout():
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
-    return render_template('dashboard.html')
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get klassen
+    result = cur.execute("SELECT * FROM klassen")
+
+    klassen = cur.fetchall()
+
+    if result > 0:
+        return render_template('dashboard.html', klassen=klassen)
+    else:
+        msg = "No Classen found"
+        return render_template('dashboard.html', msg=msg)
+
+    cur.close()
+
+class KlasForm(Form):
+    title = StringField('Title', [validators.Length(min=1, max=200)])
+    body = TextAreaField('Body', [validators.Length(min=30)])
+
+@app.route('/add_klas', methods=['GET','POST'])
+@is_logged_in
+def add_klas():
+    form = KlasForm(request.form)
+    if request.method == 'POST' and form.validate():
+        title = form.title.data
+        body = form.body.data
+
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("INSERT INTO klassen(title,body,author) VALUES(%s,%s,%s)",(title,body,session['username']))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Class Created', 'success')
+
+        return redirect(url_for('dashboard'))
+    return render_template('add_klas.html', form=form)
+
+
+
 
 
 if __name__ == '__main__':

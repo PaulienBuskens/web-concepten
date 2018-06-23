@@ -4,8 +4,8 @@
     <br>
     <h1>Classes</h1>
     <ul class="list-group">
-        {% for class in classes %}
-           <li class="list-group-item"><a href="class/{{class.id}}"> {{class.title}}</a></li>
+        {% for klas in klassen %}
+           <li class="list-group-item"><a href="klas/{{klas.id}}">{{klas.title}}</a></li>
         {% endfor %}
     </ul>
 {% endblock%}
