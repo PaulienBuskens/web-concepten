@@ -22,7 +22,12 @@
                 <td>{{klas.author}}</td>
                 <td>{{klas.create_datae}}</td>
                 <td><a href="edit_klas/{{klas.id}}" class="btn btn-info pull-right">Edit</a></td>
-                <td><a href="#" class="btn btn-danger">Delete</a></td>
+                <td>
+                    <form action="{{url_for('delete_article', id=klas.id)}}" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
             </tr>
         {% endfor %}
     </table>

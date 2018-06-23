@@ -209,6 +209,59 @@ def add_klas():
         return redirect(url_for('dashboard'))
     return render_template('add_klas.html', form=form)
 
+#### edit klas ####
+@app.route('/edit_klas/<string:id>', methods=['GET','POST'])
+@is_logged_in
+def edit_klas(id):
+
+    cur = mysql.get_db().cursor()
+
+    #get user by id
+    result = cur.execute("SELECT * FROM klassen WHERE id =%s", [id])
+
+    klas = cur. fetchone()
+
+    form = KlasForm(request.form)
+
+    #populate fields
+    form.title.data = klas['title']
+    form.body.data = klas['body']
+
+    if request.method == 'POST' and form.validate():
+        title = request.form['title']
+        body = request.form['body']
+
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("UPDATE klassen SET title=%s, body=%s WHERE id=%s", (title,body,id))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Class successfully Updated', 'success')
+
+        return redirect(url_for('dashboard'))
+    return render_template('edit_klas.html', form=form)
+
+#### delete klas ####
+@app.route('/delete_article/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_article(id):
+
+    cur = mysql.get_db().cursor()
+
+    cur.execute("DELETE FROM klassen WHERE id=%s", [id])
+
+    mysql.get_db().commit()
+
+    cur.close()
+    flash('Class Deleted Updated', 'success')
+
+    return redirect(url_for('dashboard'))
 
 
 
