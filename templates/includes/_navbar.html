@@ -17,15 +17,14 @@
             </li>
           </ul>
           <ul class="nav navbar-nav navbar-right">
-              <li>
-                <a class="nav-link" href="/register">Register </a>
-              </li>
-              <li>
-                <a class="nav-link" href="/login">Login</a>
-              </li>
-              <li>
-                <a class="nav-link" href="/logout">Logout</a>
-              </li>
-            </ul>
+            {% if session.logged_in %}
+              <li><a class="nav-link" href="/dashboard">Dashboard</a></li>
+              <li><a class="nav-link" href="/logout">Logout</a></li>
+              
+            {% else %}
+              <li><a class="nav-link" href="/register">Register </a></li>
+              <li><a class="nav-link" href="/login">Login</a></li>
+            {% endif %}
+          </ul>
         </div>
       </nav>

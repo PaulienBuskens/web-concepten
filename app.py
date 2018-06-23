@@ -4,6 +4,7 @@ from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 from wtforms import Form ,StringField, TextAreaField, PasswordField, validators
 from passlib.hash import sha256_crypt
+from functools import wraps
 
 
 mysql = MySQL(cursorclass=DictCursor)
@@ -103,7 +104,7 @@ def login():
             #compare passwords
             if sha256_crypt.verify(password_canidate, password):
                 #when all is correct
-                session['logged in'] = True
+                session['logged_in'] = True
                 session['username'] = username
 
                 flash('You are now loggend in','success')
@@ -120,16 +121,28 @@ def login():
 
     return render_template('login.html')
 
+#check if user is logged in
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Unauthorized, Please login', 'danger')
+            return redirect(url_for('login'))
+    return wrap
+
 #### logout ####
 @app.route('/logout')
 def logout():
-    session.clear
+    session.clear()
     flash('You are now logged out', 'success')
     return redirect(url_for('login'))
 
 #### dashboard ####
 
 @app.route('/dashboard')
+@is_logged_in
 def dashboard():
     return render_template('dashboard.html')
 
