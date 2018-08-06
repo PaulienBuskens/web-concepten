@@ -2,6 +2,8 @@ from flask import Flask, render_template, flash, redirect, url_for, session, log
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 from wtforms import Form ,StringField, TextAreaField, PasswordField, validators
+from wtforms.fields import TextField
+from wtforms_components import Email
 from passlib.hash import sha256_crypt
 from functools import wraps
 
@@ -29,35 +31,70 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/klassen')
-def klassen():
+#### Richtingen ####
+
+@app.route('/richtingen')
+def richtingen():
     #create cursor
     cur = mysql.get_db().cursor()
 
-    #get klassen
-    result = cur.execute("SELECT * FROM klassen")
+    #get richtingen
+    result = cur.execute("SELECT * FROM richtingen")
 
-    klassen = cur.fetchall()
+    richtingen = cur.fetchall()
 
     if result > 0:
-        return render_template('klassen.html', klassen=klassen)
+        return render_template('richtingen.html', richtingen=richtingen)
     else:
-        msg = "No Classen found"
-        return render_template('klassen.html', msg=msg)
+        msg = "No subjects found"
+        return render_template('richtingen.html', msg=msg)
 
     cur.close()
 
-@app.route('/klas/<string:id>/')
-def klas(id):
+@app.route('/richting/<string:id>/')
+def richting(id):
     #create cursor
     cur = mysql.get_db().cursor()
 
-    #get klassen
-    result = cur.execute("SELECT * FROM klassen WHERE id = %s",[id])
+    #get richtingen
+    result = cur.execute("SELECT * FROM richtingen WHERE id = %s",[id])
 
-    klas = cur.fetchone()
+    richting = cur.fetchone()
 
-    return render_template('klas.html', klas=klas)
+    return render_template('richting.html', richting=richting)
+
+#### leraren ####
+
+@app.route('/leraren')
+def leraren():
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get leraren
+    result = cur.execute("SELECT * FROM leraren")
+
+    leraren = cur.fetchall()
+
+    if result > 0:
+        return render_template('leraren.html', leraren=leraren)
+    else:
+        msg = "No subjects found"
+        return render_template('leraren.html', msg=msg)
+    
+    cur.close()
+
+@app.route('/leraar/<string:id>/')
+def leraar(id):
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get leraren
+    result = cur.execute("SELECT * FROM leraren WHERE id = %s",[id])
+
+    leraar = cur.fetchone()
+
+    return render_template('leraar.html', leraar=leraar)
+
 
 #### register ####
 
@@ -165,30 +202,37 @@ def logout():
 @app.route('/dashboard')
 @is_logged_in
 def dashboard():
+    return render_template('dashboard.html')
+
+@app.route('/dashboardRichtingen')
+@is_logged_in
+def dashboardRichtingen():
     #create cursor
     cur = mysql.get_db().cursor()
 
-    #get klassen
-    result = cur.execute("SELECT * FROM klassen")
+    #get richtingen
+    result = cur.execute("SELECT * FROM richtingen")
 
-    klassen = cur.fetchall()
+    richtingen = cur.fetchall()
 
     if result > 0:
-        return render_template('dashboard.html', klassen=klassen)
+        return render_template('dashboardRichtingen.html', richtingen=richtingen)
     else:
-        msg = "No Classen found"
-        return render_template('dashboard.html', msg=msg)
+        msg = "No subjects found"
+        return render_template('dashboardRichtingen.html', msg=msg)
 
     cur.close()
 
-class KlasForm(Form):
-    title = StringField('Title', [validators.Length(min=1, max=200)])
+#### richtingen ####
+
+class RichtingForm(Form):
+    title = StringField('Title', [validators.Length(min=1, max=100)])
     body = TextAreaField('Body', [validators.Length(min=30)])
 
-@app.route('/add_klas', methods=['GET','POST'])
+@app.route('/add_richting', methods=['GET','POST'])
 @is_logged_in
-def add_klas():
-    form = KlasForm(request.form)
+def add_richting():
+    form = RichtingForm(request.form)
     if request.method == 'POST' and form.validate():
         title = form.title.data
         body = form.body.data
@@ -197,35 +241,35 @@ def add_klas():
         cur = mysql.get_db().cursor()
 
         #execute
-        cur.execute("INSERT INTO klassen(title,body,author) VALUES(%s,%s,%s)",(title,body,session['username']))
+        cur.execute("INSERT INTO richtingen(title,body,author) VALUES(%s,%s,%s)",(title,body,session['username']))
 
         #commit to db
         mysql.get_db().commit()
 
         cur.close()
 
-        flash('Class Created', 'success')
+        flash('Subject Created', 'success')
 
         return redirect(url_for('dashboard'))
-    return render_template('add_klas.html', form=form)
+    return render_template('add_richting.html', form=form)
 
-#### edit klas ####
-@app.route('/edit_klas/<string:id>', methods=['GET','POST'])
+#### edit richting ####
+@app.route('/edit_richting/<string:id>', methods=['GET','POST'])
 @is_logged_in
-def edit_klas(id):
+def edit_richting(id):
 
     cur = mysql.get_db().cursor()
 
     #get user by id
-    result = cur.execute("SELECT * FROM klassen WHERE id =%s", [id])
+    result = cur.execute("SELECT * FROM richtingen WHERE id =%s", [id])
 
-    klas = cur. fetchone()
+    richting = cur. fetchone()
 
-    form = KlasForm(request.form)
+    form = RichtingForm(request.form)
 
     #populate fields
-    form.title.data = klas['title']
-    form.body.data = klas['body']
+    form.title.data = richting['title']
+    form.body.data = richting['body']
 
     if request.method == 'POST' and form.validate():
         title = request.form['title']
@@ -235,35 +279,146 @@ def edit_klas(id):
         cur = mysql.get_db().cursor()
 
         #execute
-        cur.execute("UPDATE klassen SET title=%s, body=%s WHERE id=%s", (title,body,id))
+        cur.execute("UPDATE richtingen SET title=%s, body=%s WHERE id=%s", (title,body,id))
 
         #commit to db
         mysql.get_db().commit()
 
         cur.close()
 
-        flash('Class successfully Updated', 'success')
+        flash('subject successfully Updated', 'success')
 
         return redirect(url_for('dashboard'))
-    return render_template('edit_klas.html', form=form)
+    return render_template('edit_richting.html', form=form)
 
-#### delete klas ####
-@app.route('/delete_article/<string:id>', methods=['POST'])
+#### delete richting ####
+@app.route('/delete_richting/<string:id>', methods=['POST'])
 @is_logged_in
-def delete_article(id):
+def delete_richting(id):
 
     cur = mysql.get_db().cursor()
 
-    cur.execute("DELETE FROM klassen WHERE id=%s", [id])
+    cur.execute("DELETE FROM richtingen WHERE id=%s", [id])
 
     mysql.get_db().commit()
 
     cur.close()
-    flash('Class Deleted Updated', 'success')
+    flash('Subject Deleted Updated', 'success')
 
     return redirect(url_for('dashboard'))
 
 
+####leraren####
+
+@app.route('/dashboardLeraren')
+@is_logged_in
+def dashboardLeraren():
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get leraren
+    result = cur.execute("SELECT * FROM leraren")
+
+    leraren = cur.fetchall()
+
+    if result > 0:
+        return render_template('dashboardLeraren.html', leraren=leraren)
+    else:
+        msg = "No subjects found"
+        return render_template('dashboardLeraren.html', msg=msg)
+
+    cur.close()
+
+class LeraarForm(Form):
+    name = StringField('Name', [validators.Length(min=1, max=100)])
+    prename = StringField('Prename', [validators.Length(min=1, max=150)])
+    foto = TextAreaField('Foto', [validators.Length(min=30)])
+    email = TextField(validators=[Email()])
+
+@app.route('/add_leraar', methods=['GET','POST'])
+@is_logged_in
+def add_leraar():
+    form = LeraarForm(request.form)
+    if request.method == 'POST' and form.validate():
+        name = form.name.data
+        prename = form.prename.data
+        foto = form.foto.data
+        email = form.email.data
+        
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("INSERT INTO leraren(name,prename,foto,email) VALUES(%s,%s,%s,%s)",(name,prename,foto,email))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Leraar Created', 'success')
+
+        return redirect(url_for('dashboard'))
+    return render_template('add_leraar.html', form=form)
+
+#### edit leraar ####
+@app.route('/edit_leraar/<string:id>', methods=['GET','POST'])
+@is_logged_in
+def edit_leraar(id):
+
+    cur = mysql.get_db().cursor()
+
+    #get leraar by id
+    result = cur.execute("SELECT * FROM leraren WHERE id =%s", [id])
+
+    leraar = cur. fetchone()
+
+    form = LeraarForm(request.form)
+
+    #populate fields
+    form.name.data = leraar['name']
+    form.prename.data = leraar['prename']
+    form.foto.data = leraar['foto']
+    form.email.data = leraar['email']
+    
+
+    if request.method == 'POST' and form.validate():
+        name = request.form['name']
+        prename = request.form['prename']
+        foto = request.form['foto']
+        email = request.form['email']
+
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("UPDATE leraren SET name=%s, prename=%s, foto=%s, email=%s WHERE id=%s", (name,prename,foto,email,id))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Leraar successfully Updated', 'success')
+
+        return redirect(url_for('dashboard'))
+    return render_template('edit_leraar.html', form=form)
+
+#### delete leraar ####
+@app.route('/delete_leraar/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_leraar(id):
+
+    cur = mysql.get_db().cursor()
+
+    cur.execute("DELETE FROM leraren WHERE id=%s", [id])
+
+    mysql.get_db().commit()
+
+    cur.close()
+    flash('Leraar Deleted Updated', 'success')
+
+    return redirect(url_for('dashboard'))
 
 
 if __name__ == '__main__':

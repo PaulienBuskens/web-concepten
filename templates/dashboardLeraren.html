@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1>Dashboard </h1>
+
+    <a href="/add_leraar" class="btn btn-success">Add Leraar</a>
+    <hr>
+
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>name</th>
+            <th>prename</th>
+            <th>email</th>
+            <th></th>
+            <th></th>
+        </tr>
+        {% for leraar in leraren %}
+            <tr>
+                <td>{{leraar.id}}</td>
+                <td>{{leraar.name}}</td>
+                <td>{{leraar.prename}}</td>
+                <td>{{leraar.email}}</td>
+                <td><a href="edit_leraar/{{leraar.id}}" class="btn btn-info pull-right">Edit</a></td>
+                <td>
+                    <form action="{{url_for('delete_leraar', id=leraar.id)}}" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

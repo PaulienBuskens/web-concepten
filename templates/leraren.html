@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block body%}
+    <br>
+    <h1>Subjects</h1>
+    <ul class="list-group">
+        {% for leraar in leraren %}
+           <li class="list-group-item"><a href="leraar/{{leraar.id}}">{{leraar.name}} {{leraar.prename}}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock%}

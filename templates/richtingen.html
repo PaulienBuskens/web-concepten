@@ -1,0 +1,11 @@
+{% extends 'layout.html' %}
+
+{% block body%}
+    <br>
+    <h1>Subjects</h1>
+    <ul class="list-group">
+        {% for richting in richtingen %}
+           <li class="list-group-item"><a href="richting/{{richting.id}}">{{richting.title}}</a></li>
+        {% endfor %}
+    </ul>
+{% endblock%}
