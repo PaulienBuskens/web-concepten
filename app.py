@@ -26,6 +26,7 @@ mysql.init_app(app)
 
 
 #### Algemene routes ####
+@app.route('/home')
 @app.route('/')
 def index():
     resp = make_response(render_template('home.html'))
@@ -37,6 +38,40 @@ def index():
 @app.route('/about')
 def about():
     return render_template('about.html')
+
+
+#### Contact Form ####
+
+class ContactForm(Form):
+    name = StringField('name', [validators.Length(min=3, max=100)])
+    email = TextField(validators=[Email()])
+    subject = StringField('subject', [validators.Length(min=3, max=100)])
+    message = TextAreaField('message', [validators.Length(min=10)])
+
+@app.route('/contact', methods=['GET','POST'])
+def contact():
+    form = ContactForm(request.form)
+    if request.method == 'POST' and form.validate():
+        name = form.name.data
+        email = form.email.data
+        subject = form.subject.data
+        message = form.message.data
+       
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("INSERT INTO contactform(name,email,subject,message) VALUES(%s,%s,%s,%s)",(name,email,subject,message))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Contact form succesfully send', 'success')
+
+        return redirect(url_for('contact'))
+    return render_template('contact.html', form=form)
 
 #### Richtingen ####
 
