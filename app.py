@@ -1,4 +1,4 @@
-from flask import Flask, render_template, flash, redirect, url_for, session, logging, request
+from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, make_response
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
 from wtforms import Form ,StringField, TextAreaField, PasswordField, validators
@@ -6,10 +6,13 @@ from wtforms.fields import TextField
 from wtforms_components import Email
 from passlib.hash import sha256_crypt
 from functools import wraps
+import datetime, time
+import os
 
 
 mysql = MySQL(cursorclass=DictCursor)
 app = Flask(__name__)
+app.secret_key= os.urandom(24)
 
 #config MySQL
 app.config['MYSQL_DATABASE_HOST']= 'localhost'
@@ -25,7 +28,11 @@ mysql.init_app(app)
 #### Algemene routes ####
 @app.route('/')
 def index():
-    return render_template('home.html')
+    resp = make_response(render_template('home.html'))
+    expire_date = datetime.datetime.now()
+    expire_date = expire_date + datetime.timedelta(days=30)
+    resp.set_cookie('welcome', 'Welkom terug', expires=expire_date)		
+    return resp
 
 @app.route('/about')
 def about():

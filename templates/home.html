@@ -3,8 +3,16 @@
 {% block body%}
     <br>
     <div class="jumbotron text-center">
-        <h1>Welcome To School App</h1>
-        <p class="lead">This application is build to let you learn more about the school</p>
+            {% if 'welcome' in request.cookies: %}
+            <h2>Welkom terug op onze website</h2>
+        {% else %}
+            <h2>Welkom op onze website</h2>
+        {% endif %}
+
+        <p class="lead">>Het verheugt ons dat u interesse toont voor het onderwijs en de opvoeding van uw kind binnen onze school. 
+            Het schoolteam zal alles in het werk stellen om de kansen te scheppen die uw kind nodig heeft om zich evenwichtig te ontplooien. 
+            Hopend op wederzijdse steun en waardering bij ons gezamenlijk opvoedingswerk, thuis en in de school, 
+            danken we u nu reeds voor de getoonde interesse in onze school.</p>
         
         {% if session.logged_in == NULL %}
             <a href="/register" class="btn btn-primary btn-lg"> Register</a>
