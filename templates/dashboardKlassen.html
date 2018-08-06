@@ -1,0 +1,35 @@
+{% extends 'layout.html' %}
+
+{% block body %}
+    <h1>Dashboard </h1>
+
+    <a href="/add_klas" class="btn btn-success">Add Klas</a>
+    <hr>
+
+    <table class="table table-striped">
+        <tr>
+            <th>ID</th>
+            <th>name</th>
+            <th>richting</th>
+            <th>leraar</th>
+            <th></th>
+            <th></th>
+        </tr>
+        {% for klas in klassen %}
+            <tr>
+                <td>{{klas.id}}</td>
+                <td>{{klas.name}}</td>
+                <td>{{klas.richting}}</td>
+                <td>{{klas.leraar}}</td>
+                
+                <td><a href="edit_klas/{{klas.id}}" class="btn btn-info pull-right">Edit</a></td>
+                <td>
+                    <form action="{{url_for('delete_klas', id=klas.id)}}" method="POST">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="submit" value="Delete" class="btn btn-danger">
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+    </table>
+{% endblock %}

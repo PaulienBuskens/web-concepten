@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+
+{% block body%}
+    <br>
+    <h1>{{klas.name}}</h1>
+    <hr>
+    <div>
+        richting: {{klas.richting | safe}} <!-- zonder "safe" staan er p tags rond de body-->
+    </br>
+       leraar: {{klas.leraar | safe}} 
+    </br>
+       numerieke_code: {{klas.numerieke_code | safe}} 
+    </div>
+
+{% endblock%}

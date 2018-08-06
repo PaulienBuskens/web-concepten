@@ -96,6 +96,38 @@ def leraar(id):
     return render_template('leraar.html', leraar=leraar)
 
 
+#### klassen ####
+@app.route('/klassen')
+def klassen():
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get klassen
+    result = cur.execute("SELECT * FROM klassen")
+
+    klassen = cur.fetchall()
+
+    if result > 0:
+        return render_template('klassen.html', klassen=klassen)
+    else:
+        msg = "No subjects found"
+        return render_template('klassen.html', msg=msg)
+    
+    cur.close()
+
+@app.route('/klas/<string:id>/')
+def klas(id):
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get klas
+    result = cur.execute("SELECT * FROM klassen WHERE id = %s",[id])
+
+    klas = cur.fetchone()
+
+    return render_template('klas.html', klas=klas)
+
+
 #### register ####
 
 class RegisterForm(Form):
@@ -303,7 +335,7 @@ def delete_richting(id):
     mysql.get_db().commit()
 
     cur.close()
-    flash('Subject Deleted Updated', 'success')
+    flash('Subject Deleted', 'success')
 
     return redirect(url_for('dashboard'))
 
@@ -416,7 +448,123 @@ def delete_leraar(id):
     mysql.get_db().commit()
 
     cur.close()
-    flash('Leraar Deleted Updated', 'success')
+    flash('Leraar Deleted', 'success')
+
+    return redirect(url_for('dashboard'))
+
+#### klassen dashboard 
+
+@app.route('/dashboardKlassen')
+@is_logged_in
+def dashboardKlassen():
+    #create cursor
+    cur = mysql.get_db().cursor()
+
+    #get klassen
+    result = cur.execute("SELECT * FROM klassen")
+
+    klassen = cur.fetchall()
+
+    if result > 0:
+        return render_template('dashboardKlassen.html', klassen=klassen)
+    else:
+        msg = "No subjects found"
+        return render_template('dashboardKlassen.html', msg=msg)
+
+    cur.close()
+
+class KlasForm(Form):
+    name = StringField('Name', [validators.Length(min=3, max=100)])
+    richting = StringField('richting', [validators.Length(min=3, max=100)])
+    leraar = StringField('leraar', [validators.Length(min=3, max=100)])
+    numerieke_code = StringField('numerieke_code', [validators.Length(max=100)])
+    
+
+@app.route('/add_klas', methods=['GET','POST'])
+@is_logged_in
+def add_klas():
+    form = KlasForm(request.form)
+    if request.method == 'POST' and form.validate():
+        name = form.name.data
+        richting = form.richting.data
+        leraar = form.leraar.data
+        numerieke_code = form.numerieke_code.data
+        
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("INSERT INTO klassen(name,richting,leraar,numerieke_code) VALUES(%s,%s,%s,%s)",(name,richting,leraar,numerieke_code))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Klas Created', 'success')
+
+        return redirect(url_for('dashboard'))
+    return render_template('add_klas.html', form=form)
+
+#### edit klas ####
+@app.route('/edit_klas/<string:id>', methods=['GET','POST'])
+@is_logged_in
+def edit_klas(id):
+
+    cur = mysql.get_db().cursor()
+
+    #get klas by id
+    result = cur.execute("SELECT * FROM klassen WHERE id =%s", [id])
+
+    klas = cur. fetchone()
+
+    form = KlasForm(request.form)
+
+    #populate fields
+    form.name.data = klas['name']
+    form.richting.data = klas['richting']
+    form.leraar.data = klas['leraar']
+    form.numerieke_code.data = klas['numerieke_code']
+
+
+    
+
+    if request.method == 'POST' and form.validate():
+        name = request.form['name']
+        richting = request.form['richting']
+        leraar = request.form['leraar']
+        numerieke_code = request.form['numerieke_code']
+     
+
+        #create cursor
+        cur = mysql.get_db().cursor()
+
+        #execute
+        cur.execute("UPDATE klassen SET name=%s, richting=%s, leraar=%s, numerieke_code=%s WHERE id=%s", (name,richting,leraar,numerieke_code,id))
+
+        #commit to db
+        mysql.get_db().commit()
+
+        cur.close()
+
+        flash('Klas successfully Updated', 'success')
+
+        return redirect(url_for('dashboard'))
+    return render_template('edit_klas.html', form=form)
+
+#### delete klas ####
+@app.route('/delete_klas/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_klas(id):
+
+    cur = mysql.get_db().cursor()
+
+    cur.execute("DELETE FROM klassen WHERE id=%s", [id])
+
+    mysql.get_db().commit()
+
+    cur.close()
+    flash('Klas Deleted', 'success')
 
     return redirect(url_for('dashboard'))
 
