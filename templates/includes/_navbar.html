@@ -1,39 +1,71 @@
 <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <a class="navbar-brand" href="/">School App</a>
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
-  
-        <div class="collapse navbar-collapse" id="navbarsExampleDefault">
-          <ul class="navbar-nav mr-auto">
-            <li class="nav-item">
-              <a class="nav-link" href="/">Home </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/about">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/contact">Contact</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/richtingen">Subjects</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/leraren">Leraren</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="/klassen">Klassen</a>
-            </li>
-          </ul>
-          <ul class="nav navbar-nav navbar-right">
-            {% if session.logged_in %}
-              <li><a class="nav-link" href="/dashboard">Dashboard</a></li>
-              <li><a class="nav-link" href="/logout">Logout</a></li>
-              
-            {% else %}
-              <li><a class="nav-link" href="/register">Register </a></li>
-              <li><a class="nav-link" href="/login">Login</a></li>
-            {% endif %}
-          </ul>
-        </div>
-      </nav>
+  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Symbol_from_Marvel%27s_The_Avengers_logo.svg/2000px-Symbol_from_Marvel%27s_The_Avengers_logo.svg.png"
+    alt="avengersLogo" style="width: 50px;">
+  <a class="navbar-brand" href="/"> &nbsp; Avenger School</a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault" aria-controls="navbarsExampleDefault"
+    aria-expanded="false" aria-label="Toggle navigation">
+    <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="nav-link" href="/">Home </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/about">About</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/contact">Contact</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/richtingen">Subjects</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/leraren">Teachers</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/klassen">Classes</a>
+      </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-right">
+      {% if session.logged_in %}
+      <li>
+        <a class="nav-link" href="/dashboard">Intranet</a>
+      </li>
+      <li>
+        <a class="nav-link" href="/logout">Logout</a>
+      </li>
+
+      {% else %}
+     <!-- <li>
+        <a class="nav-link" href="/register">Register </a>
+      </li> -->
+      <li>
+        <a class="nav-link" href="/login">Login</a>
+      </li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+{% if session.logged_in %}
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+  <div class="collapse navbar-collapse" id="navbarsExampleDefault">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item">
+        <a class="navbar-brand" href="/dashboard"> Intranet</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboardRichtingen">Subjects</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboardLeraren">Teachers</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="/dashboardKlassen">Classes</a>
+      </li>
+    </ul>
+  </div>
+</nav>
+
+{% endif %}

@@ -1,14 +1,13 @@
 from flask import Flask, render_template, flash, redirect, url_for, session, logging, request, make_response
 from flaskext.mysql import MySQL
 from pymysql.cursors import DictCursor
-from wtforms import Form ,StringField, TextAreaField, PasswordField, validators
+from wtforms import Form ,StringField, TextAreaField, PasswordField, validators, IntegerField
 from wtforms.fields import TextField
 from wtforms_components import Email
 from passlib.hash import sha256_crypt
 from functools import wraps
 import datetime, time
 import os
-
 
 mysql = MySQL(cursorclass=DictCursor)
 app = Flask(__name__)
@@ -19,7 +18,6 @@ app.config['MYSQL_DATABASE_HOST']= 'localhost'
 app.config['MYSQL_DATABASE_USER']= 'root'
 app.config['MYSQL_DATABASE_PASSWORD']= ''
 app.config['MYSQL_DATABASE_DB']= 'school'
-
 
 #init MySQL
 mysql.init_app(app)
@@ -34,6 +32,8 @@ def index():
     expire_date = expire_date + datetime.timedelta(days=30)
     resp.set_cookie('welcome', 'Welkom terug', expires=expire_date)		
     return resp
+
+ 
 
 @app.route('/about')
 def about():
@@ -173,6 +173,16 @@ def klas(id):
 
     return render_template('klas.html', klas=klas)
 
+#check if user is logged in
+def is_logged_in(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if 'logged_in' in session:
+            return f(*args, **kwargs)
+        else:
+            flash('Unauthorized, Please login', 'danger')
+            return redirect(url_for('login'))
+    return wrap
 
 #### register ####
 
@@ -188,6 +198,7 @@ class RegisterForm(Form):
 
 
 @app.route('/register', methods=['GET', 'POST'])
+@is_logged_in
 def register():
     form = RegisterForm(request.form)
     if request.method == 'POST' and form.validate():
@@ -242,7 +253,7 @@ def login():
                 session['logged_in'] = True
                 session['username'] = username
 
-                flash('You are now loggend in','success')
+                flash('You are now logged in','success')
                 return redirect(url_for('dashboard'))
             else:
                 error = 'Invalid password'
@@ -256,16 +267,7 @@ def login():
 
     return render_template('login.html')
 
-#check if user is logged in
-def is_logged_in(f):
-    @wraps(f)
-    def wrap(*args, **kwargs):
-        if 'logged_in' in session:
-            return f(*args, **kwargs)
-        else:
-            flash('Unauthorized, Please login', 'danger')
-            return redirect(url_for('login'))
-    return wrap
+
 
 #### logout ####
 @app.route('/logout')
@@ -434,7 +436,7 @@ def add_leraar():
 
         cur.close()
 
-        flash('Leraar Created', 'success')
+        flash('Teacher Created', 'success')
 
         return redirect(url_for('dashboard'))
     return render_template('add_leraar.html', form=form)
@@ -477,7 +479,7 @@ def edit_leraar(id):
 
         cur.close()
 
-        flash('Leraar successfully Updated', 'success')
+        flash('Teacher successfully Updated', 'success')
 
         return redirect(url_for('dashboard'))
     return render_template('edit_leraar.html', form=form)
@@ -494,7 +496,7 @@ def delete_leraar(id):
     mysql.get_db().commit()
 
     cur.close()
-    flash('Leraar Deleted', 'success')
+    flash('Teacher Deleted', 'success')
 
     return redirect(url_for('dashboard'))
 
@@ -523,7 +525,7 @@ class KlasForm(Form):
     name = StringField('Name', [validators.Length(min=3, max=100)])
     richting = StringField('richting', [validators.Length(min=3, max=100)])
     leraar = StringField('leraar', [validators.Length(min=3, max=100)])
-    numerieke_code = StringField('numerieke_code', [validators.Length(max=100)])
+    numerieke_code = IntegerField('numerieke_code', [validators.Length(max=100)])
     
 
 @app.route('/add_klas', methods=['GET','POST'])
@@ -541,13 +543,14 @@ def add_klas():
 
         #execute
         cur.execute("INSERT INTO klassen(name,richting,leraar,numerieke_code) VALUES(%s,%s,%s,%s)",(name,richting,leraar,numerieke_code))
-
+        
+        
         #commit to db
         mysql.get_db().commit()
 
         cur.close()
 
-        flash('Klas Created', 'success')
+        flash('Class Created', 'success')
 
         return redirect(url_for('dashboard'))
     return render_template('add_klas.html', form=form)
@@ -573,15 +576,12 @@ def edit_klas(id):
     form.numerieke_code.data = klas['numerieke_code']
 
 
-    
-
     if request.method == 'POST' and form.validate():
         name = request.form['name']
         richting = request.form['richting']
         leraar = request.form['leraar']
         numerieke_code = request.form['numerieke_code']
      
-
         #create cursor
         cur = mysql.get_db().cursor()
 
@@ -593,7 +593,7 @@ def edit_klas(id):
 
         cur.close()
 
-        flash('Klas successfully Updated', 'success')
+        flash('Class successfully Updated', 'success')
 
         return redirect(url_for('dashboard'))
     return render_template('edit_klas.html', form=form)
@@ -610,9 +610,21 @@ def delete_klas(id):
     mysql.get_db().commit()
 
     cur.close()
-    flash('Klas Deleted', 'success')
+    flash('Class Deleted', 'success')
 
     return redirect(url_for('dashboard'))
+
+
+@app.route('/dropdown', methods=['GET'])
+def dropdown():
+
+    cur = mysql.get_db().cursor()
+
+    cur.execute("SELECT * FROM leraren")
+
+    teachers = cur.fetchall()
+    
+    return render_template('test.html', teachers=teachers)
 
 
 if __name__ == '__main__':

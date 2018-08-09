@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Dropdown</title>
+</head>
+<body>
+<select name= teachers method="GET" action="/">
+    {% for teacher in teachers %}
+    <option>{{teacher.name}} {{teacher.prename}}</option>
+    {% endfor %}
+</select>
+
+</select>
+</body>
+</html>

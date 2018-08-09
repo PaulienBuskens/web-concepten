@@ -1,10 +1,10 @@
 {% extends 'layout.html' %} {% block body %}
 <h3>Welcome {{session.username}}</h3>
-<h1>Dashboard </h1>
+<h1>Intranet</h1>
 
 
 
-<a href="/dashboardRichtingen" class="btn btn-primary">Subjects</a>
-<a href="/dashboardLeraren" class="btn btn-primary">Leraren</a>
-<a href="/dashboardKlassen" class="btn btn-primary">Klassen</a>
+<a href="/dashboardRichtingen" class="btn btn-danger">Subjects</a>
+<a href="/dashboardLeraren" class="btn btn-danger">Teachers</a>
+<a href="/dashboardKlassen" class="btn btn-danger">Classes</a>
 <hr> {% endblock %}
